@@ -129,4 +129,48 @@ test.describe('Over-invoice protection flow', () => {
       expect(approvedInvoices).toContain(invoiceId);
     }
   });
+
+  test('reject invoice unit price above received value with no tolerance', { tag: '@e2e' }, async ({ request }) => {
+    test.fail(true, 'BUG-1: invoice at 1010 accepted when received value is 1000');
+
+    const overVendorId = await createFlowVendor(request, 'over-invoice-value');
+    const createPo = await request.post('/purchase-orders', {
+      data: {
+        vendor_id: overVendorId,
+        line_items: [{ sku: 'LUM-2X4-8', quantity: 1, unit_price: 1000 }],
+      },
+    });
+    expect(createPo.status()).toBe(201);
+    const poBody: unknown = await createPo.json();
+    if (!isRecord(poBody)) {
+      throw new Error('POST /purchase-orders did not return an object');
+    }
+    const overPoId = requireString(poBody, 'id');
+
+    await request.post(`/purchase-orders/${overPoId}/submit`);
+    const receive = await request.post(`/purchase-orders/${overPoId}/receive`, {
+      data: { items: [{ sku: 'LUM-2X4-8', quantity: 1 }] },
+    });
+    expect(receive.status()).toBe(200);
+    const receivedPo: unknown = await receive.json();
+    if (!isRecord(receivedPo)) {
+      throw new Error('receive did not return an object');
+    }
+    expect(requireNumber(receivedPo, 'received_value')).toBe(1000);
+
+    const invoice = await request.post('/invoices', {
+      data: {
+        po_id: overPoId,
+        invoice_number: `INV-over-value-${Date.now()}`,
+        line_items: [{ sku: 'LUM-2X4-8', quantity: 1, unit_price: 1010 }],
+      },
+    });
+    expect(invoice.status()).toBe(400);
+    const invoiceErr: unknown = await invoice.json();
+    await expectSchema(request, invoiceErr, 'Error');
+    if (!isRecord(invoiceErr)) {
+      throw new Error('400 body was not an object');
+    }
+    expect(invoiceErr.rule).toBe('overpayment_protection');
+  });
 });

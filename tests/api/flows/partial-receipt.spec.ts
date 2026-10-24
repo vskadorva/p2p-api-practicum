@@ -26,8 +26,8 @@ test.describe('Partial receipt flow', () => {
       data: {
         vendor_id: vendorId,
         line_items: [
-          { sku: 'LUM-2X4-8', quantity: 10, unit_price: 4.75 },
           { sku: 'CEM-30KG', quantity: 4, unit_price: 11.9 },
+          { sku: 'LUM-2X4-8', quantity: 10, unit_price: 4.75 },
         ],
       },
     });
@@ -56,8 +56,8 @@ test.describe('Partial receipt flow', () => {
     const response = await request.post(`/purchase-orders/${poId}/receive`, {
       data: {
         items: [
-          { sku: 'LUM-2X4-8', quantity: 10 },
           { sku: 'CEM-30KG', quantity: 2 },
+          { sku: 'LUM-2X4-8', quantity: 10 },
         ],
       },
     });
@@ -78,8 +78,8 @@ test.describe('Partial receipt flow', () => {
         po_id: poId,
         invoice_number: `INV-partial-${Date.now()}`,
         line_items: [
-          { sku: 'LUM-2X4-8', quantity: 10, unit_price: 4.75 },
           { sku: 'CEM-30KG', quantity: 2, unit_price: 11.9 },
+          { sku: 'LUM-2X4-8', quantity: 10, unit_price: 4.75 },
         ],
       },
     });

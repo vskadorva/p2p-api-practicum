@@ -1,0 +1,1779 @@
+[
+  {
+    "rule": "three_way_match_gate",
+    "attack": "approve unmatched invoice",
+    "request": {
+      "method": "POST",
+      "path": "/invoices/inv-ee591d38/approve",
+      "body": null
+    },
+    "response": {
+      "status": 400,
+      "body": {
+        "detail": "Invoice inv-ee591d38 must pass the 3-way match before approval.",
+        "rule": "three_way_match_gate"
+      }
+    },
+    "setup": {
+      "receive_status": 200,
+      "invoice_status": "received",
+      "matched": false
+    }
+  },
+  {
+    "rule": "receive_quantity_limit",
+    "attack": "receive more than ordered",
+    "request": {
+      "method": "POST",
+      "path": "/purchase-orders/po-47eceb17/receive",
+      "body": {
+        "items": [
+          {
+            "sku": "CEM-30KG",
+            "quantity": 8
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 400,
+      "body": {
+        "detail": "Cannot receive 8 of CEM-30KG: ordered 5, already received 0.",
+        "rule": "receive_quantity_limit"
+      }
+    }
+  },
+  {
+    "rule": "overpayment_protection",
+    "attack": "invoice value above received",
+    "request": {
+      "method": "POST",
+      "path": "/invoices",
+      "body": {
+        "po_id": "po-b6406946",
+        "invoice_number": "INV-OVER-VALUE",
+        "line_items": [
+          {
+            "sku": "REB-10MM-6",
+            "quantity": 4,
+            "unit_price": 25.0
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 400,
+      "body": {
+        "detail": "Invoice total 100.00 plus already invoiced 0.00 exceeds received value 40.00.",
+        "rule": "overpayment_protection"
+      }
+    },
+    "setup": {
+      "receive_status": 200,
+      "receive": {
+        "id": "po-b6406946",
+        "vendor_id": "vnd-41fb80c5",
+        "status": "submitted",
+        "line_items": [
+          {
+            "sku": "REB-10MM-6",
+            "description": "",
+            "quantity": 10,
+            "unit_price": 10,
+            "received_quantity": 4
+          }
+        ],
+        "ordered_value": 100,
+        "received_value": 40,
+        "fully_received": false
+      }
+    }
+  },
+  {
+    "rule": "inactive_vendor_gate",
+    "attack": "po for seed inactive vendor",
+    "request": {
+      "method": "POST",
+      "path": "/purchase-orders",
+      "body": {
+        "vendor_id": "vnd-002",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 1,
+            "unit_price": 4.75
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 400,
+      "body": {
+        "detail": "Vendor vnd-002 is inactive. Purchase orders need an active vendor.",
+        "rule": "inactive_vendor_gate"
+      }
+    }
+  },
+  {
+    "rule": "inactive_vendor_gate",
+    "attack": "po for created inactive vendor",
+    "request": {
+      "method": "POST",
+      "path": "/purchase-orders",
+      "body": {
+        "vendor_id": "vnd-3e7828ca",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 1,
+            "unit_price": 4.75
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 400,
+      "body": {
+        "detail": "Vendor vnd-3e7828ca is inactive. Purchase orders need an active vendor.",
+        "rule": "inactive_vendor_gate"
+      }
+    },
+    "setup": {
+      "vendor_create": {
+        "id": "vnd-3e7828ca",
+        "name": "Adv Inactive Created",
+        "active": false
+      },
+      "vendor_status": 201
+    }
+  },
+  {
+    "rule": "receive_quantity_limit",
+    "attack": "receive one unit over",
+    "request": {
+      "method": "POST",
+      "path": "/purchase-orders/po-bc1d6bbe/receive",
+      "body": {
+        "items": [
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 11
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 400,
+      "body": {
+        "detail": "Cannot receive 11 of LUM-2X4-8: ordered 10, already received 0.",
+        "rule": "receive_quantity_limit"
+      }
+    }
+  },
+  {
+    "rule": "receive_quantity_limit",
+    "attack": "cumulative receipts exceed ordered",
+    "request": {
+      "method": "POST",
+      "path": "/purchase-orders/po-1b6d71b7/receive",
+      "body": {
+        "items": [
+          {
+            "sku": "SCR-DECK-1LB",
+            "quantity": 5
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 400,
+      "body": {
+        "detail": "Cannot receive 5 of SCR-DECK-1LB: ordered 10, already received 6.",
+        "rule": "receive_quantity_limit"
+      }
+    },
+    "setup": {
+      "first_receive_status": 200,
+      "first_receive": {
+        "id": "po-1b6d71b7",
+        "vendor_id": "vnd-448ad2a7",
+        "status": "submitted",
+        "line_items": [
+          {
+            "sku": "SCR-DECK-1LB",
+            "description": "",
+            "quantity": 10,
+            "unit_price": 9.99,
+            "received_quantity": 6
+          }
+        ],
+        "ordered_value": 99.9,
+        "received_value": 59.94,
+        "fully_received": false
+      },
+      "first_request": {
+        "items": [
+          {
+            "sku": "SCR-DECK-1LB",
+            "quantity": 6
+          }
+        ]
+      }
+    }
+  },
+  {
+    "rule": "receive_quantity_limit",
+    "attack": "receive zero quantity",
+    "request": {
+      "method": "POST",
+      "path": "/purchase-orders/po-b10b04df/receive",
+      "body": {
+        "items": [
+          {
+            "sku": "CEM-30KG",
+            "quantity": 0
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 400,
+      "body": {
+        "detail": "items.0.quantity: quantity must be greater than 0",
+        "rule": "validation_error"
+      }
+    }
+  },
+  {
+    "rule": "receive_quantity_limit",
+    "attack": "receive negative quantity",
+    "request": {
+      "method": "POST",
+      "path": "/purchase-orders/po-17372e1a/receive",
+      "body": {
+        "items": [
+          {
+            "sku": "CEM-30KG",
+            "quantity": -1
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 400,
+      "body": {
+        "detail": "items.0.quantity: quantity must be greater than 0",
+        "rule": "validation_error"
+      }
+    }
+  },
+  {
+    "rule": "overpayment_protection",
+    "attack": "invoice one cent over received value",
+    "request": {
+      "method": "POST",
+      "path": "/invoices",
+      "body": {
+        "po_id": "po-719d921e",
+        "invoice_number": "INV-ONE-CENT",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 1,
+            "unit_price": 10.01
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 201,
+      "body": {
+        "id": "inv-fd163675",
+        "po_id": "po-719d921e",
+        "vendor_id": "vnd-ec6104e3",
+        "invoice_number": "INV-ONE-CENT",
+        "status": "received",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 1,
+            "unit_price": 10.01
+          }
+        ],
+        "total_amount": 10.01,
+        "matched": false,
+        "partial_receipt": null
+      }
+    },
+    "setup": {
+      "receive_status": 200,
+      "received_value": 10
+    }
+  },
+  {
+    "rule": "overpayment_protection",
+    "attack": "invoice one percent over received value",
+    "request": {
+      "method": "POST",
+      "path": "/invoices",
+      "body": {
+        "po_id": "po-b8cc83d7",
+        "invoice_number": "INV-ONE-PCT",
+        "line_items": [
+          {
+            "sku": "PLY-12-4X8",
+            "quantity": 10,
+            "unit_price": 10.1
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 201,
+      "body": {
+        "id": "inv-04382e52",
+        "po_id": "po-b8cc83d7",
+        "vendor_id": "vnd-cd276c64",
+        "invoice_number": "INV-ONE-PCT",
+        "status": "received",
+        "line_items": [
+          {
+            "sku": "PLY-12-4X8",
+            "quantity": 10,
+            "unit_price": 10.1
+          }
+        ],
+        "total_amount": 101,
+        "matched": false,
+        "partial_receipt": null
+      }
+    }
+  },
+  {
+    "rule": "overpayment_protection",
+    "attack": "line quantity over while total under",
+    "request": {
+      "method": "POST",
+      "path": "/invoices",
+      "body": {
+        "po_id": "po-f0a3e9cb",
+        "invoice_number": "INV-LINE-QTY",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 11,
+            "unit_price": 1.0
+          },
+          {
+            "sku": "PLY-12-4X8",
+            "quantity": 9,
+            "unit_price": 10.0
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 400,
+      "body": {
+        "detail": "Cannot invoice 11 of LUM-2X4-8: received 10, already invoiced 0.",
+        "rule": "overpayment_protection"
+      }
+    },
+    "setup": {
+      "receive_status": 200,
+      "received_value": 110
+    }
+  },
+  {
+    "rule": "overpayment_protection",
+    "attack": "two invoices combined exceed received",
+    "request": {
+      "method": "POST",
+      "path": "/invoices",
+      "body": {
+        "po_id": "po-8af15a54",
+        "invoice_number": "INV-PART-B",
+        "line_items": [
+          {
+            "sku": "CEM-30KG",
+            "quantity": 5,
+            "unit_price": 10.0
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 400,
+      "body": {
+        "detail": "Cannot invoice 5 of CEM-30KG: received 10, already invoiced 6.",
+        "rule": "overpayment_protection"
+      }
+    },
+    "setup": {
+      "first_status": 201,
+      "first_invoice": {
+        "id": "inv-5c4a65ce",
+        "po_id": "po-8af15a54",
+        "vendor_id": "vnd-9608acee",
+        "invoice_number": "INV-PART-A",
+        "status": "received",
+        "line_items": [
+          {
+            "sku": "CEM-30KG",
+            "quantity": 6,
+            "unit_price": 10
+          }
+        ],
+        "total_amount": 60,
+        "matched": false,
+        "partial_receipt": null
+      },
+      "first_request": {
+        "po_id": "po-8af15a54",
+        "invoice_number": "INV-PART-A",
+        "line_items": [
+          {
+            "sku": "CEM-30KG",
+            "quantity": 6,
+            "unit_price": 10.0
+          }
+        ]
+      }
+    }
+  },
+  {
+    "rule": "overpayment_protection",
+    "attack": "invoice before any receipt",
+    "request": {
+      "method": "POST",
+      "path": "/invoices",
+      "body": {
+        "po_id": "po-6d0e3ee6",
+        "invoice_number": "INV-NO-RECEIPT",
+        "line_items": [
+          {
+            "sku": "REB-10MM-6",
+            "quantity": 3,
+            "unit_price": 18.25
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 400,
+      "body": {
+        "detail": "Cannot invoice 3 of REB-10MM-6: received 0, already invoiced 0.",
+        "rule": "overpayment_protection"
+      }
+    }
+  },
+  {
+    "rule": "overpayment_protection",
+    "attack": "underpayment is allowed",
+    "request": {
+      "method": "POST",
+      "path": "/invoices",
+      "body": {
+        "po_id": "po-83cc6cd7",
+        "invoice_number": "INV-UNDER",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 1,
+            "unit_price": 9.99
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 201,
+      "body": {
+        "id": "inv-70767069",
+        "po_id": "po-83cc6cd7",
+        "vendor_id": "vnd-472ead8b",
+        "invoice_number": "INV-UNDER",
+        "status": "received",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 1,
+            "unit_price": 9.99
+          }
+        ],
+        "total_amount": 9.99,
+        "matched": false,
+        "partial_receipt": null
+      }
+    }
+  },
+  {
+    "rule": "overpayment_protection",
+    "attack": "lower quantity higher price same total",
+    "request": {
+      "method": "POST",
+      "path": "/invoices",
+      "body": {
+        "po_id": "po-24b80c02",
+        "invoice_number": "INV-RESHAPE",
+        "line_items": [
+          {
+            "sku": "SCR-DECK-1LB",
+            "quantity": 5,
+            "unit_price": 10.0
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 201,
+      "body": {
+        "id": "inv-58e04aca",
+        "po_id": "po-24b80c02",
+        "vendor_id": "vnd-0c03e3c8",
+        "invoice_number": "INV-RESHAPE",
+        "status": "received",
+        "line_items": [
+          {
+            "sku": "SCR-DECK-1LB",
+            "quantity": 5,
+            "unit_price": 10
+          }
+        ],
+        "total_amount": 50,
+        "matched": false,
+        "partial_receipt": null
+      }
+    }
+  },
+  {
+    "rule": "overpayment_protection",
+    "attack": "prices offset to the same total",
+    "request": {
+      "method": "POST",
+      "path": "/invoices",
+      "body": {
+        "po_id": "po-d3e997aa",
+        "invoice_number": "INV-OFFSET",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 1,
+            "unit_price": 10.01
+          },
+          {
+            "sku": "CEM-30KG",
+            "quantity": 1,
+            "unit_price": 9.99
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 201,
+      "body": {
+        "id": "inv-0c50ee18",
+        "po_id": "po-d3e997aa",
+        "vendor_id": "vnd-761a6b3f",
+        "invoice_number": "INV-OFFSET",
+        "status": "received",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 1,
+            "unit_price": 10.01
+          },
+          {
+            "sku": "CEM-30KG",
+            "quantity": 1,
+            "unit_price": 9.99
+          }
+        ],
+        "total_amount": 20,
+        "matched": false,
+        "partial_receipt": null
+      }
+    },
+    "setup": {
+      "received_value": 20
+    }
+  },
+  {
+    "rule": "overpayment_protection",
+    "attack": "tenth-cent prices that sum cleanly",
+    "request": {
+      "method": "POST",
+      "path": "/invoices",
+      "body": {
+        "po_id": "po-df3e0d0a",
+        "invoice_number": "INV-TENTH",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 1,
+            "unit_price": 0.1
+          },
+          {
+            "sku": "PLY-12-4X8",
+            "quantity": 1,
+            "unit_price": 0.2
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 201,
+      "body": {
+        "id": "inv-d69bf176",
+        "po_id": "po-df3e0d0a",
+        "vendor_id": "vnd-ae4061c4",
+        "invoice_number": "INV-TENTH",
+        "status": "received",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 1,
+            "unit_price": 0.1
+          },
+          {
+            "sku": "PLY-12-4X8",
+            "quantity": 1,
+            "unit_price": 0.2
+          }
+        ],
+        "total_amount": 0.3,
+        "matched": false,
+        "partial_receipt": null
+      }
+    },
+    "setup": {
+      "po_ordered_value": 0.3,
+      "received_value": 0.3,
+      "receive_status": 200
+    }
+  },
+  {
+    "rule": "partial_receipt_flag",
+    "attack": "partial lines then match",
+    "request": {
+      "method": "POST",
+      "path": "/invoices/inv-cca2e234/match",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "invoice_id": "inv-cca2e234",
+        "po_id": "po-ed980731",
+        "status": "matched",
+        "matched": true,
+        "partial_receipt": true,
+        "ordered_value": 145.05,
+        "received_value": 24.24,
+        "invoice_total": 24.24,
+        "message": "3-way match passed. Partial receipt flagged."
+      }
+    },
+    "setup": {
+      "first_receive": {
+        "status": 200,
+        "body": {
+          "id": "po-ed980731",
+          "vendor_id": "vnd-bbe5dec7",
+          "status": "submitted",
+          "line_items": [
+            {
+              "sku": "LUM-2X4-8",
+              "description": "",
+              "quantity": 10,
+              "unit_price": 4.75,
+              "received_quantity": 3
+            },
+            {
+              "sku": "CEM-30KG",
+              "description": "",
+              "quantity": 4,
+              "unit_price": 11.9,
+              "received_quantity": 0
+            },
+            {
+              "sku": "SCR-DECK-1LB",
+              "description": "",
+              "quantity": 5,
+              "unit_price": 9.99,
+              "received_quantity": 0
+            }
+          ],
+          "ordered_value": 145.05,
+          "received_value": 14.25,
+          "fully_received": false
+        }
+      },
+      "second_receive": {
+        "status": 200,
+        "body": {
+          "id": "po-ed980731",
+          "vendor_id": "vnd-bbe5dec7",
+          "status": "submitted",
+          "line_items": [
+            {
+              "sku": "LUM-2X4-8",
+              "description": "",
+              "quantity": 10,
+              "unit_price": 4.75,
+              "received_quantity": 3
+            },
+            {
+              "sku": "CEM-30KG",
+              "description": "",
+              "quantity": 4,
+              "unit_price": 11.9,
+              "received_quantity": 0
+            },
+            {
+              "sku": "SCR-DECK-1LB",
+              "description": "",
+              "quantity": 5,
+              "unit_price": 9.99,
+              "received_quantity": 1
+            }
+          ],
+          "ordered_value": 145.05,
+          "received_value": 24.24,
+          "fully_received": false
+        }
+      },
+      "invoice": {
+        "id": "inv-cca2e234",
+        "po_id": "po-ed980731",
+        "vendor_id": "vnd-bbe5dec7",
+        "invoice_number": "INV-PARTIAL",
+        "status": "received",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 3,
+            "unit_price": 4.75
+          },
+          {
+            "sku": "SCR-DECK-1LB",
+            "quantity": 1,
+            "unit_price": 9.99
+          }
+        ],
+        "total_amount": 24.24,
+        "matched": false,
+        "partial_receipt": null
+      },
+      "get_invoice_status": 200,
+      "get_invoice": {
+        "id": "inv-cca2e234",
+        "po_id": "po-ed980731",
+        "vendor_id": "vnd-bbe5dec7",
+        "invoice_number": "INV-PARTIAL",
+        "status": "matched",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 3,
+            "unit_price": 4.75
+          },
+          {
+            "sku": "SCR-DECK-1LB",
+            "quantity": 1,
+            "unit_price": 9.99
+          }
+        ],
+        "total_amount": 24.24,
+        "matched": true,
+        "partial_receipt": true
+      },
+      "po_after": {
+        "id": "po-ed980731",
+        "vendor_id": "vnd-bbe5dec7",
+        "status": "submitted",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "description": "",
+            "quantity": 10,
+            "unit_price": 4.75,
+            "received_quantity": 3
+          },
+          {
+            "sku": "CEM-30KG",
+            "description": "",
+            "quantity": 4,
+            "unit_price": 11.9,
+            "received_quantity": 0
+          },
+          {
+            "sku": "SCR-DECK-1LB",
+            "description": "",
+            "quantity": 5,
+            "unit_price": 9.99,
+            "received_quantity": 1
+          }
+        ],
+        "ordered_value": 145.05,
+        "received_value": 24.24,
+        "fully_received": false
+      }
+    }
+  },
+  {
+    "rule": "partial_receipt_flag",
+    "attack": "full receipt flag is false",
+    "request": {
+      "method": "POST",
+      "path": "/invoices/inv-16e5268a/match",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "invoice_id": "inv-16e5268a",
+        "po_id": "po-9836c769",
+        "status": "matched",
+        "matched": true,
+        "partial_receipt": false,
+        "ordered_value": 42.05,
+        "received_value": 42.05,
+        "invoice_total": 42.05,
+        "message": "3-way match passed."
+      }
+    },
+    "setup": {
+      "po_status": "closed",
+      "fully_received": true,
+      "get_invoice": {
+        "id": "inv-16e5268a",
+        "po_id": "po-9836c769",
+        "vendor_id": "vnd-319b5c7d",
+        "invoice_number": "INV-FULL",
+        "status": "matched",
+        "line_items": [
+          {
+            "sku": "CEM-30KG",
+            "quantity": 2,
+            "unit_price": 11.9
+          },
+          {
+            "sku": "REB-10MM-6",
+            "quantity": 1,
+            "unit_price": 18.25
+          }
+        ],
+        "total_amount": 42.05,
+        "matched": true,
+        "partial_receipt": false
+      }
+    }
+  },
+  {
+    "rule": "duplicate_invoice_detection",
+    "attack": "exact duplicate invoice number",
+    "request": {
+      "method": "POST",
+      "path": "/invoices",
+      "body": {
+        "po_id": "po-100b5b14",
+        "invoice_number": "INV-7",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 1,
+            "unit_price": 4.75
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 400,
+      "body": {
+        "detail": "Invoice number INV-7 already exists for this vendor.",
+        "rule": "duplicate_invoice_detection"
+      }
+    },
+    "setup": {
+      "first_status": 201,
+      "first_invoice": {
+        "id": "inv-d92329d3",
+        "po_id": "po-100b5b14",
+        "vendor_id": "vnd-4f795138",
+        "invoice_number": "INV-7",
+        "status": "received",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 2,
+            "unit_price": 4.75
+          }
+        ],
+        "total_amount": 9.5,
+        "matched": false,
+        "partial_receipt": null
+      }
+    }
+  },
+  {
+    "rule": "duplicate_invoice_detection",
+    "attack": "invoice number differs only by case",
+    "request": {
+      "method": "POST",
+      "path": "/invoices",
+      "body": {
+        "po_id": "po-4dbafa9b",
+        "invoice_number": "inv-7",
+        "line_items": [
+          {
+            "sku": "PLY-12-4X8",
+            "quantity": 1,
+            "unit_price": 22.4
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 201,
+      "body": {
+        "id": "inv-7e6b4526",
+        "po_id": "po-4dbafa9b",
+        "vendor_id": "vnd-3473b316",
+        "invoice_number": "inv-7",
+        "status": "received",
+        "line_items": [
+          {
+            "sku": "PLY-12-4X8",
+            "quantity": 1,
+            "unit_price": 22.4
+          }
+        ],
+        "total_amount": 22.4,
+        "matched": false,
+        "partial_receipt": null
+      }
+    },
+    "setup": {
+      "first_status": 201,
+      "first_number": "INV-7"
+    }
+  },
+  {
+    "rule": "duplicate_invoice_detection",
+    "attack": "invoice number differs only by surrounding spaces",
+    "request": {
+      "method": "POST",
+      "path": "/invoices",
+      "body": {
+        "po_id": "po-e126ad38",
+        "invoice_number": " INV-7 ",
+        "line_items": [
+          {
+            "sku": "CEM-30KG",
+            "quantity": 1,
+            "unit_price": 11.9
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 201,
+      "body": {
+        "id": "inv-ce665f80",
+        "po_id": "po-e126ad38",
+        "vendor_id": "vnd-c87bd519",
+        "invoice_number": " INV-7 ",
+        "status": "received",
+        "line_items": [
+          {
+            "sku": "CEM-30KG",
+            "quantity": 1,
+            "unit_price": 11.9
+          }
+        ],
+        "total_amount": 11.9,
+        "matched": false,
+        "partial_receipt": null
+      }
+    },
+    "setup": {
+      "first_status": 201
+    }
+  },
+  {
+    "rule": "duplicate_invoice_detection",
+    "attack": "same number on two vendors",
+    "request": {
+      "method": "POST",
+      "path": "/invoices",
+      "body": {
+        "po_id": "po-049b60bc",
+        "invoice_number": "INV-SAME",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 2,
+            "unit_price": 4.75
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 201,
+      "body": {
+        "id": "inv-2ab351bd",
+        "po_id": "po-049b60bc",
+        "vendor_id": "vnd-1b49f95a",
+        "invoice_number": "INV-SAME",
+        "status": "received",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 2,
+            "unit_price": 4.75
+          }
+        ],
+        "total_amount": 9.5,
+        "matched": false,
+        "partial_receipt": null
+      }
+    },
+    "setup": {
+      "first_vendor_status": 201,
+      "first_invoice": {
+        "id": "inv-e9fbf02b",
+        "po_id": "po-7dc8649a",
+        "vendor_id": "vnd-d1229776",
+        "invoice_number": "INV-SAME",
+        "status": "received",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 2,
+            "unit_price": 4.75
+          }
+        ],
+        "total_amount": 9.5,
+        "matched": false,
+        "partial_receipt": null
+      },
+      "vendors": [
+        "vnd-d1229776",
+        "vnd-1b49f95a"
+      ]
+    }
+  },
+  {
+    "rule": "gl_balance",
+    "attack": "approval ledger balances",
+    "request": {
+      "method": "POST",
+      "path": "/invoices/inv-a2af7e87/approve",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "invoice_id": "inv-a2af7e87",
+        "status": "approved",
+        "gl_entry": {
+          "debits": [
+            {
+              "account": "5000 Materials Expense",
+              "amount": 47.5
+            }
+          ],
+          "credits": [
+            {
+              "account": "2000 Accounts Payable",
+              "amount": 47.5
+            }
+          ],
+          "balanced": true
+        },
+        "vendor_exposure": 47.5
+      }
+    },
+    "setup": {
+      "invoice_total": 47.5,
+      "match": {
+        "invoice_id": "inv-a2af7e87",
+        "po_id": "po-6ad0a1ec",
+        "status": "matched",
+        "matched": true,
+        "partial_receipt": false,
+        "ordered_value": 47.5,
+        "received_value": 47.5,
+        "invoice_total": 47.5,
+        "message": "3-way match passed."
+      },
+      "match_status": 200
+    }
+  },
+  {
+    "rule": "gl_balance",
+    "attack": "ledger on tenth-cent lines",
+    "request": {
+      "method": "POST",
+      "path": "/invoices/inv-827efb81/approve",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "invoice_id": "inv-827efb81",
+        "status": "approved",
+        "gl_entry": {
+          "debits": [
+            {
+              "account": "5000 Materials Expense",
+              "amount": 0.3
+            }
+          ],
+          "credits": [
+            {
+              "account": "2000 Accounts Payable",
+              "amount": 0.3
+            }
+          ],
+          "balanced": true
+        },
+        "vendor_exposure": 0.3
+      }
+    },
+    "setup": {
+      "invoice": {
+        "id": "inv-827efb81",
+        "po_id": "po-d7edc324",
+        "vendor_id": "vnd-ff997bab",
+        "invoice_number": "INV-GL-TENTH",
+        "status": "received",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 1,
+            "unit_price": 0.1
+          },
+          {
+            "sku": "PLY-12-4X8",
+            "quantity": 1,
+            "unit_price": 0.2
+          }
+        ],
+        "total_amount": 0.3,
+        "matched": false,
+        "partial_receipt": null
+      },
+      "ordered_value": 0.3
+    }
+  },
+  {
+    "rule": "gl_balance",
+    "attack": "half-cent unit price",
+    "request": {
+      "method": "POST",
+      "path": "/invoices/inv-94963658/approve",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "invoice_id": "inv-94963658",
+        "status": "approved",
+        "gl_entry": {
+          "debits": [
+            {
+              "account": "5000 Materials Expense",
+              "amount": 1.01
+            }
+          ],
+          "credits": [
+            {
+              "account": "2000 Accounts Payable",
+              "amount": 1.01
+            }
+          ],
+          "balanced": true
+        },
+        "vendor_exposure": 1.01
+      }
+    },
+    "setup": {
+      "po_status": 201,
+      "po": {
+        "id": "po-0048768a",
+        "vendor_id": "vnd-666187b9",
+        "status": "draft",
+        "line_items": [
+          {
+            "sku": "CEM-30KG",
+            "description": "",
+            "quantity": 1,
+            "unit_price": 1.01,
+            "received_quantity": 0
+          }
+        ],
+        "ordered_value": 1.01,
+        "received_value": 0,
+        "fully_received": false
+      },
+      "receive_status": 200,
+      "receive": {
+        "id": "po-0048768a",
+        "vendor_id": "vnd-666187b9",
+        "status": "closed",
+        "line_items": [
+          {
+            "sku": "CEM-30KG",
+            "description": "",
+            "quantity": 1,
+            "unit_price": 1.01,
+            "received_quantity": 1
+          }
+        ],
+        "ordered_value": 1.01,
+        "received_value": 1.01,
+        "fully_received": true
+      },
+      "invoice_status": 201,
+      "invoice": {
+        "id": "inv-94963658",
+        "po_id": "po-0048768a",
+        "vendor_id": "vnd-666187b9",
+        "invoice_number": "INV-HALF",
+        "status": "received",
+        "line_items": [
+          {
+            "sku": "CEM-30KG",
+            "quantity": 1,
+            "unit_price": 1.005
+          }
+        ],
+        "total_amount": 1.01,
+        "matched": false,
+        "partial_receipt": null
+      },
+      "match_status": 200,
+      "match": {
+        "invoice_id": "inv-94963658",
+        "po_id": "po-0048768a",
+        "status": "matched",
+        "matched": true,
+        "partial_receipt": false,
+        "ordered_value": 1.01,
+        "received_value": 1.01,
+        "invoice_total": 1.01,
+        "message": "3-way match passed."
+      }
+    }
+  },
+  {
+    "rule": "invoice_line_validation",
+    "attack": "sku not on the po",
+    "request": {
+      "method": "POST",
+      "path": "/invoices",
+      "body": {
+        "po_id": "po-82bca734",
+        "invoice_number": "INV-BAD-SKU",
+        "line_items": [
+          {
+            "sku": "CEM-30KG",
+            "quantity": 1,
+            "unit_price": 11.9
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 400,
+      "body": {
+        "detail": "SKU CEM-30KG is not on the purchase order.",
+        "rule": "invoice_line_validation"
+      }
+    }
+  },
+  {
+    "rule": "invoice_line_validation",
+    "attack": "duplicate sku on invoice",
+    "request": {
+      "method": "POST",
+      "path": "/invoices",
+      "body": {
+        "po_id": "po-f3b7231c",
+        "invoice_number": "INV-DUP-SKU",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 1,
+            "unit_price": 4.75
+          },
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 1,
+            "unit_price": 4.75
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 400,
+      "body": {
+        "detail": "SKU LUM-2X4-8 appears more than once on the invoice.",
+        "rule": "invoice_line_validation"
+      }
+    }
+  },
+  {
+    "rule": "duplicate_approval",
+    "attack": "approve twice",
+    "request": {
+      "method": "POST",
+      "path": "/invoices/inv-c5a80569/approve",
+      "body": null
+    },
+    "response": {
+      "status": 400,
+      "body": {
+        "detail": "Invoice inv-c5a80569 is already approved.",
+        "rule": "duplicate_approval"
+      }
+    },
+    "setup": {
+      "first_approve_status": 200,
+      "first_approve": {
+        "invoice_id": "inv-c5a80569",
+        "status": "approved",
+        "gl_entry": {
+          "debits": [
+            {
+              "account": "5000 Materials Expense",
+              "amount": 18.25
+            }
+          ],
+          "credits": [
+            {
+              "account": "2000 Accounts Payable",
+              "amount": 18.25
+            }
+          ],
+          "balanced": true
+        },
+        "vendor_exposure": 18.25
+      }
+    }
+  },
+  {
+    "rule": "workflow_gate",
+    "attack": "submit twice",
+    "request": {
+      "method": "POST",
+      "path": "/purchase-orders/po-a2691440/submit",
+      "body": null
+    },
+    "response": {
+      "status": 400,
+      "body": {
+        "detail": "Only draft purchase orders can be submitted. po-a2691440 is submitted.",
+        "rule": "workflow_gate"
+      }
+    },
+    "setup": {
+      "first_status": 200,
+      "first_body": {
+        "id": "po-a2691440",
+        "vendor_id": "vnd-d5888c23",
+        "status": "submitted",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "description": "",
+            "quantity": 1,
+            "unit_price": 4.75,
+            "received_quantity": 0
+          }
+        ],
+        "ordered_value": 4.75,
+        "received_value": 0,
+        "fully_received": false
+      }
+    }
+  },
+  {
+    "rule": "workflow_gate",
+    "attack": "receive on draft",
+    "request": {
+      "method": "POST",
+      "path": "/purchase-orders/po-38ab2611/receive",
+      "body": {
+        "items": [
+          {
+            "sku": "CEM-30KG",
+            "quantity": 1
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 400,
+      "body": {
+        "detail": "Goods can only be received on a submitted purchase order. po-38ab2611 is draft.",
+        "rule": "workflow_gate"
+      }
+    },
+    "setup": {
+      "po_status": "draft"
+    }
+  },
+  {
+    "rule": "workflow_gate",
+    "attack": "invoice on draft",
+    "request": {
+      "method": "POST",
+      "path": "/invoices",
+      "body": {
+        "po_id": "po-e9a7a24f",
+        "invoice_number": "INV-DRAFT",
+        "line_items": [
+          {
+            "sku": "SCR-DECK-1LB",
+            "quantity": 1,
+            "unit_price": 9.99
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 400,
+      "body": {
+        "detail": "Purchase order po-e9a7a24f is still a draft. Submit it before invoicing.",
+        "rule": "workflow_gate"
+      }
+    },
+    "setup": {
+      "po_status": "draft"
+    }
+  },
+  {
+    "rule": "workflow_gate",
+    "attack": "match an approved invoice",
+    "request": {
+      "method": "POST",
+      "path": "/invoices/inv-cc0d5acc/match",
+      "body": null
+    },
+    "response": {
+      "status": 400,
+      "body": {
+        "detail": "Invoice inv-cc0d5acc is already approved and cannot be matched again.",
+        "rule": "workflow_gate"
+      }
+    },
+    "setup": {
+      "approve_status": 200,
+      "approve": {
+        "invoice_id": "inv-cc0d5acc",
+        "status": "approved",
+        "gl_entry": {
+          "debits": [
+            {
+              "account": "5000 Materials Expense",
+              "amount": 4.75
+            }
+          ],
+          "credits": [
+            {
+              "account": "2000 Accounts Payable",
+              "amount": 4.75
+            }
+          ],
+          "balanced": true
+        },
+        "vendor_exposure": 4.75
+      }
+    }
+  },
+  {
+    "rule": "workflow_gate",
+    "attack": "invoice a closed po",
+    "request": {
+      "method": "POST",
+      "path": "/invoices",
+      "body": {
+        "po_id": "po-14979afb",
+        "invoice_number": "INV-CLOSED",
+        "line_items": [
+          {
+            "sku": "PLY-12-4X8",
+            "quantity": 1,
+            "unit_price": 22.4
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 201,
+      "body": {
+        "id": "inv-283f4c3a",
+        "po_id": "po-14979afb",
+        "vendor_id": "vnd-13a73fbe",
+        "invoice_number": "INV-CLOSED",
+        "status": "received",
+        "line_items": [
+          {
+            "sku": "PLY-12-4X8",
+            "quantity": 1,
+            "unit_price": 22.4
+          }
+        ],
+        "total_amount": 22.4,
+        "matched": false,
+        "partial_receipt": null
+      }
+    },
+    "setup": {
+      "po_after_receive": {
+        "id": "po-14979afb",
+        "vendor_id": "vnd-13a73fbe",
+        "status": "closed",
+        "line_items": [
+          {
+            "sku": "PLY-12-4X8",
+            "description": "",
+            "quantity": 1,
+            "unit_price": 22.4,
+            "received_quantity": 1
+          }
+        ],
+        "ordered_value": 22.4,
+        "received_value": 22.4,
+        "fully_received": true
+      }
+    }
+  },
+  {
+    "rule": "vendor_exposure_math",
+    "attack": "exposure equals one approved invoice",
+    "request": {
+      "method": "GET",
+      "path": "/vendors/vnd-3379b859/exposure",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "vendor_id": "vnd-3379b859",
+        "open_ap_liability": 47.6,
+        "approved_invoices": [
+          "inv-e9c393a9"
+        ]
+      }
+    },
+    "setup": {
+      "approve_status": 200,
+      "approve": {
+        "invoice_id": "inv-e9c393a9",
+        "status": "approved",
+        "gl_entry": {
+          "debits": [
+            {
+              "account": "5000 Materials Expense",
+              "amount": 47.6
+            }
+          ],
+          "credits": [
+            {
+              "account": "2000 Accounts Payable",
+              "amount": 47.6
+            }
+          ],
+          "balanced": true
+        },
+        "vendor_exposure": 47.6
+      },
+      "invoice_total": 47.6,
+      "invoice_id": "inv-e9c393a9"
+    }
+  },
+  {
+    "rule": "vendor_exposure_math",
+    "attack": "exposure sums two approved invoices",
+    "request": {
+      "method": "GET",
+      "path": "/vendors/vnd-b21801e1/exposure",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "vendor_id": "vnd-b21801e1",
+        "open_ap_liability": 27.75,
+        "approved_invoices": [
+          "inv-6d5a3501",
+          "inv-0c8a6337"
+        ]
+      }
+    },
+    "setup": {
+      "invoice_totals": [
+        9.5,
+        18.25
+      ],
+      "invoice_ids": [
+        "inv-6d5a3501",
+        "inv-0c8a6337"
+      ],
+      "approvals": [
+        {
+          "status": 200,
+          "body": {
+            "invoice_id": "inv-6d5a3501",
+            "status": "approved",
+            "gl_entry": {
+              "debits": [
+                {
+                  "account": "5000 Materials Expense",
+                  "amount": 9.5
+                }
+              ],
+              "credits": [
+                {
+                  "account": "2000 Accounts Payable",
+                  "amount": 9.5
+                }
+              ],
+              "balanced": true
+            },
+            "vendor_exposure": 9.5
+          }
+        },
+        {
+          "status": 200,
+          "body": {
+            "invoice_id": "inv-0c8a6337",
+            "status": "approved",
+            "gl_entry": {
+              "debits": [
+                {
+                  "account": "5000 Materials Expense",
+                  "amount": 18.25
+                }
+              ],
+              "credits": [
+                {
+                  "account": "2000 Accounts Payable",
+                  "amount": 18.25
+                }
+              ],
+              "balanced": true
+            },
+            "vendor_exposure": 27.75
+          }
+        }
+      ]
+    }
+  },
+  {
+    "rule": "invoice_line_validation",
+    "attack": "duplicate sku on purchase order",
+    "request": {
+      "method": "POST",
+      "path": "/purchase-orders",
+      "body": {
+        "vendor_id": "vnd-23d665bc",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 1,
+            "unit_price": 4.75
+          },
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 2,
+            "unit_price": 4.75
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 400,
+      "body": {
+        "detail": "Each SKU may appear only once on a purchase order.",
+        "rule": "validation_error"
+      }
+    }
+  },
+  {
+    "rule": "receive_quantity_limit",
+    "attack": "receive sku not on the po",
+    "request": {
+      "method": "POST",
+      "path": "/purchase-orders/po-478aff6f/receive",
+      "body": {
+        "items": [
+          {
+            "sku": "CEM-30KG",
+            "quantity": 1
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 400,
+      "body": {
+        "detail": "SKU CEM-30KG is not on purchase order po-478aff6f.",
+        "rule": "validation_error"
+      }
+    }
+  },
+  {
+    "rule": "overpayment_protection",
+    "attack": "negative unit price",
+    "request": {
+      "method": "POST",
+      "path": "/purchase-orders",
+      "body": {
+        "vendor_id": "vnd-3ff9da86",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 1,
+            "unit_price": -1
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 400,
+      "body": {
+        "detail": "line_items.0.unit_price: unit_price must be 0 or more",
+        "rule": "validation_error"
+      }
+    }
+  },
+  {
+    "rule": "receive_quantity_limit",
+    "attack": "zero quantity on purchase order",
+    "request": {
+      "method": "POST",
+      "path": "/purchase-orders",
+      "body": {
+        "vendor_id": "vnd-8c4a34a6",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 0,
+            "unit_price": 4.75
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 400,
+      "body": {
+        "detail": "line_items.0.quantity: quantity must be greater than 0",
+        "rule": "validation_error"
+      }
+    }
+  }
+]

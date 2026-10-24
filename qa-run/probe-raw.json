@@ -1,0 +1,484 @@
+[
+  {
+    "name": "probe pct confirm 101 on 100",
+    "received_value": 100,
+    "request": {
+      "po_id": "po-7d6c0949",
+      "invoice_number": "INV-PROBE",
+      "line_items": [
+        {
+          "sku": "LUM-2X4-8",
+          "quantity": 10,
+          "unit_price": 10.1
+        }
+      ]
+    },
+    "status": 201,
+    "body": {
+      "id": "inv-17aba16e",
+      "po_id": "po-7d6c0949",
+      "vendor_id": "vnd-95cb6cc9",
+      "invoice_number": "INV-PROBE",
+      "status": "received",
+      "line_items": [
+        {
+          "sku": "LUM-2X4-8",
+          "quantity": 10,
+          "unit_price": 10.1
+        }
+      ],
+      "total_amount": 101,
+      "matched": false,
+      "partial_receipt": null
+    }
+  },
+  {
+    "name": "probe one cent on 100",
+    "received_value": 100,
+    "request": {
+      "po_id": "po-c6560edb",
+      "invoice_number": "INV-PROBE",
+      "line_items": [
+        {
+          "sku": "LUM-2X4-8",
+          "quantity": 10,
+          "unit_price": 10.001
+        }
+      ]
+    },
+    "status": 201,
+    "body": {
+      "id": "inv-7986e4f7",
+      "po_id": "po-c6560edb",
+      "vendor_id": "vnd-f0eddc05",
+      "invoice_number": "INV-PROBE",
+      "status": "received",
+      "line_items": [
+        {
+          "sku": "LUM-2X4-8",
+          "quantity": 10,
+          "unit_price": 10.001
+        }
+      ],
+      "total_amount": 100.01,
+      "matched": false,
+      "partial_receipt": null
+    }
+  },
+  {
+    "name": "probe 100.01 explicit",
+    "received_value": 100,
+    "request": {
+      "po_id": "po-537e8042",
+      "invoice_number": "INV-PROBE",
+      "line_items": [
+        {
+          "sku": "LUM-2X4-8",
+          "quantity": 1,
+          "unit_price": 100.01
+        }
+      ]
+    },
+    "status": 201,
+    "body": {
+      "id": "inv-33a6d7a0",
+      "po_id": "po-537e8042",
+      "vendor_id": "vnd-bde4b693",
+      "invoice_number": "INV-PROBE",
+      "status": "received",
+      "line_items": [
+        {
+          "sku": "LUM-2X4-8",
+          "quantity": 1,
+          "unit_price": 100.01
+        }
+      ],
+      "total_amount": 100.01,
+      "matched": false,
+      "partial_receipt": null
+    }
+  },
+  {
+    "name": "probe 101 on 100 qty1",
+    "received_value": 100,
+    "request": {
+      "po_id": "po-2b093aba",
+      "invoice_number": "INV-PROBE",
+      "line_items": [
+        {
+          "sku": "LUM-2X4-8",
+          "quantity": 1,
+          "unit_price": 101.0
+        }
+      ]
+    },
+    "status": 201,
+    "body": {
+      "id": "inv-4993289a",
+      "po_id": "po-2b093aba",
+      "vendor_id": "vnd-ad284036",
+      "invoice_number": "INV-PROBE",
+      "status": "received",
+      "line_items": [
+        {
+          "sku": "LUM-2X4-8",
+          "quantity": 1,
+          "unit_price": 101
+        }
+      ],
+      "total_amount": 101,
+      "matched": false,
+      "partial_receipt": null
+    }
+  },
+  {
+    "name": "probe 101.01 on 100",
+    "received_value": 100,
+    "request": {
+      "po_id": "po-3466f683",
+      "invoice_number": "INV-PROBE",
+      "line_items": [
+        {
+          "sku": "LUM-2X4-8",
+          "quantity": 1,
+          "unit_price": 101.01
+        }
+      ]
+    },
+    "status": 400,
+    "body": {
+      "detail": "Invoice total 101.01 plus already invoiced 0.00 exceeds received value 100.00.",
+      "rule": "overpayment_protection"
+    }
+  },
+  {
+    "name": "probe 102 on 100",
+    "received_value": 100,
+    "request": {
+      "po_id": "po-a6d8edab",
+      "invoice_number": "INV-PROBE",
+      "line_items": [
+        {
+          "sku": "LUM-2X4-8",
+          "quantity": 1,
+          "unit_price": 102.0
+        }
+      ]
+    },
+    "status": 400,
+    "body": {
+      "detail": "Invoice total 102.00 plus already invoiced 0.00 exceeds received value 100.00.",
+      "rule": "overpayment_protection"
+    }
+  },
+  {
+    "name": "probe 105 on 100",
+    "received_value": 100,
+    "request": {
+      "po_id": "po-a8e39aed",
+      "invoice_number": "INV-PROBE",
+      "line_items": [
+        {
+          "sku": "LUM-2X4-8",
+          "quantity": 1,
+          "unit_price": 105.0
+        }
+      ]
+    },
+    "status": 400,
+    "body": {
+      "detail": "Invoice total 105.00 plus already invoiced 0.00 exceeds received value 100.00.",
+      "rule": "overpayment_protection"
+    }
+  },
+  {
+    "name": "probe 110 on 100",
+    "received_value": 100,
+    "request": {
+      "po_id": "po-b75aeac5",
+      "invoice_number": "INV-PROBE",
+      "line_items": [
+        {
+          "sku": "LUM-2X4-8",
+          "quantity": 1,
+          "unit_price": 110.0
+        }
+      ]
+    },
+    "status": 400,
+    "body": {
+      "detail": "Invoice total 110.00 plus already invoiced 0.00 exceeds received value 100.00.",
+      "rule": "overpayment_protection"
+    }
+  },
+  {
+    "name": "probe 120 on 100",
+    "received_value": 100,
+    "request": {
+      "po_id": "po-04b4c986",
+      "invoice_number": "INV-PROBE",
+      "line_items": [
+        {
+          "sku": "LUM-2X4-8",
+          "quantity": 1,
+          "unit_price": 120.0
+        }
+      ]
+    },
+    "status": 400,
+    "body": {
+      "detail": "Invoice total 120.00 plus already invoiced 0.00 exceeds received value 100.00.",
+      "rule": "overpayment_protection"
+    }
+  },
+  {
+    "name": "probe 150 on 100",
+    "received_value": 100,
+    "request": {
+      "po_id": "po-d026bbf0",
+      "invoice_number": "INV-PROBE",
+      "line_items": [
+        {
+          "sku": "LUM-2X4-8",
+          "quantity": 1,
+          "unit_price": 150.0
+        }
+      ]
+    },
+    "status": 400,
+    "body": {
+      "detail": "Invoice total 150.00 plus already invoiced 0.00 exceeds received value 100.00.",
+      "rule": "overpayment_protection"
+    }
+  },
+  {
+    "name": "probe 10.10 on 10",
+    "received_value": 10,
+    "request": {
+      "po_id": "po-9800822e",
+      "invoice_number": "INV-PROBE",
+      "line_items": [
+        {
+          "sku": "LUM-2X4-8",
+          "quantity": 1,
+          "unit_price": 10.1
+        }
+      ]
+    },
+    "status": 201,
+    "body": {
+      "id": "inv-b1b62c48",
+      "po_id": "po-9800822e",
+      "vendor_id": "vnd-1166c29f",
+      "invoice_number": "INV-PROBE",
+      "status": "received",
+      "line_items": [
+        {
+          "sku": "LUM-2X4-8",
+          "quantity": 1,
+          "unit_price": 10.1
+        }
+      ],
+      "total_amount": 10.1,
+      "matched": false,
+      "partial_receipt": null
+    }
+  },
+  {
+    "name": "probe 10.11 on 10",
+    "received_value": 10,
+    "request": {
+      "po_id": "po-d3e8e74f",
+      "invoice_number": "INV-PROBE",
+      "line_items": [
+        {
+          "sku": "LUM-2X4-8",
+          "quantity": 1,
+          "unit_price": 10.11
+        }
+      ]
+    },
+    "status": 400,
+    "body": {
+      "detail": "Invoice total 10.11 plus already invoiced 0.00 exceeds received value 10.00.",
+      "rule": "overpayment_protection"
+    }
+  },
+  {
+    "name": "probe 11 on 10",
+    "received_value": 10,
+    "request": {
+      "po_id": "po-7284aa4c",
+      "invoice_number": "INV-PROBE",
+      "line_items": [
+        {
+          "sku": "LUM-2X4-8",
+          "quantity": 1,
+          "unit_price": 11.0
+        }
+      ]
+    },
+    "status": 400,
+    "body": {
+      "detail": "Invoice total 11.00 plus already invoiced 0.00 exceeds received value 10.00.",
+      "rule": "overpayment_protection"
+    }
+  },
+  {
+    "name": "probe 1001 on 1000",
+    "received_value": 1000,
+    "request": {
+      "po_id": "po-50782d92",
+      "invoice_number": "INV-PROBE",
+      "line_items": [
+        {
+          "sku": "LUM-2X4-8",
+          "quantity": 1,
+          "unit_price": 1001.0
+        }
+      ]
+    },
+    "status": 201,
+    "body": {
+      "id": "inv-5bb6debc",
+      "po_id": "po-50782d92",
+      "vendor_id": "vnd-c4c20c96",
+      "invoice_number": "INV-PROBE",
+      "status": "received",
+      "line_items": [
+        {
+          "sku": "LUM-2X4-8",
+          "quantity": 1,
+          "unit_price": 1001
+        }
+      ],
+      "total_amount": 1001,
+      "matched": false,
+      "partial_receipt": null
+    }
+  },
+  {
+    "name": "probe 1010 on 1000",
+    "received_value": 1000,
+    "request": {
+      "po_id": "po-3a59c227",
+      "invoice_number": "INV-PROBE",
+      "line_items": [
+        {
+          "sku": "LUM-2X4-8",
+          "quantity": 1,
+          "unit_price": 1010.0
+        }
+      ]
+    },
+    "status": 201,
+    "body": {
+      "id": "inv-ae29ec6d",
+      "po_id": "po-3a59c227",
+      "vendor_id": "vnd-ee4a2314",
+      "invoice_number": "INV-PROBE",
+      "status": "received",
+      "line_items": [
+        {
+          "sku": "LUM-2X4-8",
+          "quantity": 1,
+          "unit_price": 1010
+        }
+      ],
+      "total_amount": 1010,
+      "matched": false,
+      "partial_receipt": null
+    }
+  },
+  {
+    "name": "probe 1011 on 1000",
+    "received_value": 1000,
+    "request": {
+      "po_id": "po-fe60eba1",
+      "invoice_number": "INV-PROBE",
+      "line_items": [
+        {
+          "sku": "LUM-2X4-8",
+          "quantity": 1,
+          "unit_price": 1011.0
+        }
+      ]
+    },
+    "status": 400,
+    "body": {
+      "detail": "Invoice total 1011.00 plus already invoiced 0.00 exceeds received value 1000.00.",
+      "rule": "overpayment_protection"
+    }
+  },
+  {
+    "name": "probe 1100 on 1000",
+    "received_value": 1000,
+    "request": {
+      "po_id": "po-f17b20df",
+      "invoice_number": "INV-PROBE",
+      "line_items": [
+        {
+          "sku": "LUM-2X4-8",
+          "quantity": 1,
+          "unit_price": 1100.0
+        }
+      ]
+    },
+    "status": 400,
+    "body": {
+      "detail": "Invoice total 1100.00 plus already invoiced 0.00 exceeds received value 1000.00.",
+      "rule": "overpayment_protection"
+    }
+  },
+  {
+    "name": "probe two invoices value exceed qty exact",
+    "received_value": 100,
+    "first": {
+      "status": 201,
+      "body": {
+        "id": "inv-0f97e5e5",
+        "po_id": "po-62a81b0d",
+        "vendor_id": "vnd-630c44d9",
+        "invoice_number": "INV-STACK-A",
+        "status": "received",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 5,
+            "unit_price": 10
+          }
+        ],
+        "total_amount": 50,
+        "matched": false,
+        "partial_receipt": null
+      },
+      "request": {
+        "po_id": "po-62a81b0d",
+        "invoice_number": "INV-STACK-A",
+        "line_items": [
+          {
+            "sku": "LUM-2X4-8",
+            "quantity": 5,
+            "unit_price": 10.0
+          }
+        ]
+      }
+    },
+    "request": {
+      "po_id": "po-62a81b0d",
+      "invoice_number": "INV-STACK-B",
+      "line_items": [
+        {
+          "sku": "LUM-2X4-8",
+          "quantity": 5,
+          "unit_price": 12.0
+        }
+      ]
+    },
+    "status": 400,
+    "body": {
+      "detail": "Invoice total 60.00 plus already invoiced 50.00 exceeds received value 100.00.",
+      "rule": "overpayment_protection"
+    }
+  }
+]
